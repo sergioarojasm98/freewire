@@ -1,0 +1,43 @@
+name: Freewire
+options:
+  bundleIdPrefix: io.github.sergioarojasm98
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+packages:
+  FreewireCore:
+    path: FreewireCore
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: 4HK3699TX4
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+targets:
+  Freewire:
+    type: application
+    platform: macOS
+    sources:
+      - path: Freewire
+    dependencies:
+      - package: FreewireCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.sergioarojasm98.freewire
+        PRODUCT_NAME: Freewire
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Freewire
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 Sergio Rojas"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_HARDENED_RUNTIME: YES
+        ENABLE_APP_SANDBOX: NO
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+      configs:
+        # Its own identity, so a Debug build never takes the installed app's login item or defaults
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: io.github.sergioarojasm98.freewire.debug
