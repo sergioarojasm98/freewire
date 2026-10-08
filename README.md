@@ -41,7 +41,7 @@ flowchart LR
 
 ## Install
 
-Requires macOS 14 or later.
+Requires macOS 14 or later on Apple silicon.
 
 1. Download `Freewire-<version>.zip` from [Releases](../../releases), unzip it and move **Freewire.app** to
    **Applications**.

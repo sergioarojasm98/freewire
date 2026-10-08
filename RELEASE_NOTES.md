@@ -5,6 +5,6 @@ First release.
 - Updates as soon as a cable is plugged in or pulled out; idle Thunderbolt ports are hidden.
 - Settings: public IP lookup on or off, hide adapters without a cable, notifications when Ethernet connects or disconnects.
 - Open at Login from the menu.
-- Signed with Developer ID, notarized and stapled. macOS 14 or later.
+- Signed with Developer ID, notarized and stapled. macOS 14 or later, Apple silicon.
 
 Install: unzip, move **Freewire.app** to Applications and open it.
