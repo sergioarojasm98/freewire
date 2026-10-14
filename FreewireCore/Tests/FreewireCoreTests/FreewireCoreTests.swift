@@ -83,3 +83,27 @@ struct SnapshotTests {
         #expect(usb.macAddress == "94:BD:BE:84:C5:DF")
     }
 }
+
+struct PrimaryInterfaceTests {
+    @Test func recognizesVPNTunnels() {
+        #expect(InterfaceReader.isTunnel("utun0"))
+        #expect(InterfaceReader.isTunnel("ipsec0"))
+        #expect(InterfaceReader.isTunnel("ppp0"))
+        #expect(!InterfaceReader.isTunnel("en7"))
+        #expect(!InterfaceReader.isTunnel("en0"))
+    }
+
+    /// MacBook-YUM with GlobalProtect up (2026-10-14): the default route is utun0, the service order lists the USB
+    /// adapter (en7) before Wi-Fi (en0), and only those two services have an address.
+    @Test func picksTheFirstServiceWithAnAddressUnderAVPN() {
+        let state = ["usbmodem": nil, "usb-lan": "en7", "realtek": nil, "wifi": "en0"] as [String: String?]
+        let order = ["usbmodem", "usb-lan", "realtek", "wifi"]
+        #expect(InterfaceReader.firstPhysical(serviceOrder: order) { state[$0] ?? nil } == "en7")
+    }
+
+    @Test func skipsTunnelsAndEmptyOrders() {
+        let state = ["vpn": "utun3", "wifi": "en0"]
+        #expect(InterfaceReader.firstPhysical(serviceOrder: ["vpn", "wifi"]) { state[$0] } == "en0")
+        #expect(InterfaceReader.firstPhysical(serviceOrder: []) { _ in "en0" } == nil)
+    }
+}

@@ -33,10 +33,38 @@ public enum InterfaceReader {
         return link?["Active"] as? Bool ?? false
     }
 
+    /// The interface the traffic leaves through. Usually the system's primary interface; with a VPN up, though, the
+    /// default route goes into a tunnel (GlobalProtect's utun0, IPsec, PPP), and the tunnel's own packets leave
+    /// through the first service in the network service order that has an address, like `scutil --nwi` lists it.
     static func primaryInterface(store: SCDynamicStore?) -> String? {
+        var primary: String?
         for key in ["State:/Network/Global/IPv4", "State:/Network/Global/IPv6"] {
             let global = SCDynamicStoreCopyValue(store, key as CFString) as? [String: Any]
-            if let device = global?["PrimaryInterface"] as? String { return device }
+            if let device = global?["PrimaryInterface"] as? String { primary = device; break }
+        }
+        guard let primary, isTunnel(primary) else { return primary }
+        let setup = SCDynamicStoreCopyValue(store, "Setup:/Network/Global/IPv4" as CFString) as? [String: Any]
+        let order = setup?["ServiceOrder"] as? [String] ?? []
+        return firstPhysical(serviceOrder: order) { service in
+            for family in ["IPv4", "IPv6"] {
+                let key = "State:/Network/Service/\(service)/\(family)" as CFString
+                if let name = (SCDynamicStoreCopyValue(store, key) as? [String: Any])?["InterfaceName"] as? String {
+                    return name
+                }
+            }
+            return nil
+        } ?? primary
+    }
+
+    /// Virtual interfaces a VPN routes through.
+    static func isTunnel(_ device: String) -> Bool {
+        ["utun", "ipsec", "ppp", "tun", "tap", "gif", "stf"].contains { device.hasPrefix($0) }
+    }
+
+    /// First service in `serviceOrder` that is up (has an interface with an address) on a physical interface.
+    static func firstPhysical(serviceOrder: [String], interfaceOf: (String) -> String?) -> String? {
+        for service in serviceOrder {
+            if let device = interfaceOf(service), !isTunnel(device) { return device }
         }
         return nil
     }

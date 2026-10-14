@@ -1,6 +1,3 @@
-- **Updates itself.** Freewire checks GitHub for a new version every few hours, downloads it in the background and installs it right away, relaunching on its own. **Check for Updates…** in the menu checks now. Updates are verified with an Ed25519 signature (Sparkle) on top of Apple's notarization.
-- The active interface (the one carrying the traffic) is shown in bold in the Interfaces list (also in 1.1.0).
+- **Works behind a VPN.** With a VPN connected (GlobalProtect, IPsec, WireGuard…) the system's default route goes into a tunnel such as `utun0`, so Freewire said "Active: No" and no interface was bold. Now it follows the tunnel down to the interface its traffic really leaves through: the first service with an address in the network service order, like `scutil --nwi` shows.
 
-Signed with Developer ID, notarized and stapled. macOS 14 or later, Apple silicon.
-
-Install: unzip, move **Freewire.app** to Applications and open it. From 1.2.0 on, later versions install themselves.
+Signed with Developer ID, notarized and stapled. macOS 14 or later, Apple silicon. Installs itself on Freewire 1.2.0 or later.
