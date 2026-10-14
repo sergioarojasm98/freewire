@@ -25,7 +25,7 @@ flowchart LR
 - **Interfaces**: one submenu per adapter (USB, Thunderbolt dock, built-in) with device, model, vendor, MAC
   address, name, IPv4 and IPv6 addresses and link status. Idle Thunderbolt ports are hidden; adapters without a cable
   can be hidden too.
-- Optional notifications when Ethernet connects or disconnects, and **Open at Login** from the menu.
+- Optional notifications when Ethernet connects or disconnects, and **Start at login** from the menu.
 - Updates are event driven (no polling): the app listens to the same dynamic store keys System Settings uses.
 
 ## Stack
@@ -47,7 +47,7 @@ Requires macOS 14 or later on Apple silicon.
 1. Download `Freewire-<version>.zip` from [Releases](../../releases), unzip it and move **Freewire.app** to
    **Applications**.
 2. Open it; the `<···>` icon appears in the menu bar.
-3. Optional: menu › **Open at Login**, and **Settings…** for the public IP lookup, idle adapters and notifications.
+3. Optional: menu › **Start at login**, and **Settings…** for the public IP lookup, idle adapters and notifications.
 
 Updates install themselves from 1.2.0 on: Freewire checks every 6 hours, downloads a new release in the background
 and relaunches into it (menu › **Check for Updates…** checks now). Earlier versions: quit Freewire and replace the

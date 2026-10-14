@@ -94,10 +94,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.removeAllItems()
 
         menu.addItem(info("Ethernet: \(snapshot.isConnected ? "Connected" : "Disconnected")"))
-        let active = info("Active: \(snapshot.isActive ? "Yes" : "No")")
-        // The dot sits in the checkmark column, like the state of "Open at Login"
-        active.state = .on
-        active.onStateImage = StatusIcon.dot(snapshot.isActive ? .systemGreen : .systemGray)
+        // Every row starts at the left edge: nothing uses the state column, so the dot and the login check go after
+        // the text instead
+        let active = info("")
+        active.attributedTitle = trailing(
+            "Status: \(snapshot.isActive ? "Active" : "Inactive")",
+            mark: StatusIcon.dot(snapshot.isActive ? .systemGreen : .systemRed))
         menu.addItem(active)
         publicIPItem = nil
         if preferences.showPublicIP {
@@ -125,22 +127,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
 
         menu.addItem(.separator())
-        let login = NSMenuItem(title: "Open at Login", action: #selector(toggleOpenAtLogin), keyEquivalent: "")
+        let login = NSMenuItem(title: "Start at login", action: #selector(toggleOpenAtLogin), keyEquivalent: "")
         login.target = self
-        login.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        if SMAppService.mainApp.status == .enabled {
+            login.attributedTitle = NSAttributedString(string: "Start at login ✓", attributes: [.font: NSFont.menuFont(ofSize: 0)])
+        }
         menu.addItem(login)
+        // The actions carry their own symbols (macOS 26 adds some by itself, and not on every version), so the group
+        // looks the same everywhere
         let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
         settings.target = self
+        settings.image = symbol("gearshape")
         menu.addItem(settings)
         let update = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
         update.target = self
         update.isEnabled = updater.canCheckForUpdates
+        update.image = symbol("arrow.triangle.2.circlepath")
         menu.addItem(update)
         let about = NSMenuItem(title: "About Freewire", action: #selector(showAbout), keyEquivalent: "")
         about.target = self
+        about.image = symbol("info.circle")
         menu.addItem(about)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        let quit = NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        quit.image = symbol("xmark.square")
+        menu.addItem(quit)
     }
 
     private func details(of interface: EthernetInterface) -> NSMenu {
@@ -164,6 +175,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return submenu
     }
 
+    private func symbol(_ name: String) -> NSImage? {
+        NSImage(systemSymbolName: name, accessibilityDescription: nil)
+    }
+
+    /// `text` followed by a small image (the status dot), vertically centered on the menu font.
+    private func trailing(_ text: String, mark: NSImage) -> NSAttributedString {
+        let font = NSFont.menuFont(ofSize: 0)
+        let title = NSMutableAttributedString(string: text + " ", attributes: [.font: font, .foregroundColor: NSColor.labelColor])
+        let attachment = NSTextAttachment()
+        attachment.image = mark
+        let side = mark.size.height
+        attachment.bounds = NSRect(x: 0, y: (font.capHeight - side) / 2, width: mark.size.width, height: side)
+        title.append(NSAttributedString(attachment: attachment))
+        return title
+    }
+
     private func info(_ title: String) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
         item.isEnabled = false
@@ -185,7 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             log.error("open at login: \(error.localizedDescription)")
             NSApp.activate()
             let alert = NSAlert(error: error)
-            alert.messageText = "Couldn’t change Open at Login"
+            alert.messageText = "Couldn’t change Start at login"
             alert.runModal()
         }
     }

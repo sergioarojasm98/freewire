@@ -1,3 +1,3 @@
-- **Works behind a VPN.** With a VPN connected (GlobalProtect, IPsec, WireGuard…) the system's default route goes into a tunnel such as `utun0`, so Freewire said "Active: No" and no interface was bold. Now it follows the tunnel down to the interface its traffic really leaves through: the first service with an address in the network service order, like `scutil --nwi` shows.
+- Cleaner menu: every row starts at the same column. The status reads **Status: Active ●** (green) or **Status: Inactive ●** (red) with the dot after the text, **Start at login ✓** shows its check after the text, and Settings, Check for Updates, About and Quit carry their own icons.
 
 Signed with Developer ID, notarized and stapled. macOS 14 or later, Apple silicon. Installs itself on Freewire 1.2.0 or later.
