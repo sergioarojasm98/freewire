@@ -25,6 +25,16 @@ IDENTITY="$(security find-identity -v -p codesigning "$CSC_KEYCHAIN" | awk '/Dev
 [ -n "$IDENTITY" ] || { echo "no Developer ID identity in $CSC_KEYCHAIN" >&2; exit 1; }
 echo "signing with ${IDENTITY:0:8}… (G2)"
 
+# Sparkle's helpers are signed inside out before the app (Sparkle's guide for Developer ID apps)
+FW="$APP/Contents/Frameworks/Sparkle.framework"
+if [ -d "$FW" ]; then
+  for item in "$FW/Versions/B/XPCServices/Installer.xpc" "$FW/Versions/B/XPCServices/Downloader.xpc" \
+              "$FW/Versions/B/Autoupdate" "$FW/Versions/B/Updater.app" "$FW"; do
+    [ -e "$item" ] || continue
+    codesign --force --options runtime --timestamp --preserve-metadata=entitlements \
+      --keychain "$CSC_KEYCHAIN" --sign "$IDENTITY" "$item"
+  done
+fi
 codesign --force --options runtime --timestamp --keychain "$CSC_KEYCHAIN" --sign "$IDENTITY" "$APP"
 codesign --verify --strict --deep --verbose=2 "$APP"
 codesign -dv --verbose=2 "$APP" 2>&1 | grep -E "^(Authority|TeamIdentifier|Runtime Version|Identifier)=" || true

@@ -38,6 +38,7 @@ flowchart LR
 | Tests | Swift Testing (`swift test`), CI on macOS |
 | Project | XcodeGen (`project.yml`) |
 | Distribution | Developer ID signed, hardened runtime, notarized and stapled zip on GitHub Releases |
+| Updates | [Sparkle](https://sparkle-project.org) 2, Ed25519-signed appcast published with each release |
 
 ## Install
 
@@ -48,7 +49,9 @@ Requires macOS 14 or later on Apple silicon.
 2. Open it; the `<···>` icon appears in the menu bar.
 3. Optional: menu › **Open at Login**, and **Settings…** for the public IP lookup, idle adapters and notifications.
 
-To update, quit Freewire and replace the app. Logs:
+Updates install themselves from 1.2.0 on: Freewire checks every 6 hours, downloads a new release in the background
+and relaunches into it (menu › **Check for Updates…** checks now). Earlier versions: quit Freewire and replace the
+app. Logs:
 `/usr/bin/log show --last 1h --predicate 'subsystem == "io.github.sergioarojasm98.freewire"'`.
 
 ## Build
@@ -63,7 +66,10 @@ Debug builds use their own bundle id (`…freewire.debug`); `--args -previewMenu
 
 `scripts/release.sh vX.Y.Z` builds on a Mac over SSH, runs the tests, signs inside a temporary keychain with secrets
 read from 1Password, notarizes, staples, checks Gatekeeper and publishes the zip and its SHA-256 as a GitHub release.
-The tag must match `MARKETING_VERSION` in `project.yml`.
+It also signs the zip with the Sparkle Ed25519 key (1Password; `SUPublicEDKey` in `project.yml` is its public half),
+verifies that signature and uploads `appcast.xml` (`scripts/appcast.py`) to the release, so
+`releases/latest/download/appcast.xml` always describes the newest version. The tag must match `MARKETING_VERSION`
+in `project.yml`; bump `CURRENT_PROJECT_VERSION` too (Sparkle compares it).
 
 ## License
 

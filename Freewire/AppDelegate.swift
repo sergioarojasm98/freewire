@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let menu = NSMenu()
     private var publicIPItem: NSMenuItem?
     private var settingsWindow: NSWindow?
+    private let updater = Updater()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -29,6 +30,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         monitor.onChange = { [weak self] snapshot in self?.networkChanged(snapshot) }
         monitor.start()
         if monitor.snapshot == .empty { networkChanged(.empty) }
+        #if !DEBUG
+        updater.start() // a Debug build never updates itself
+        #endif
         #if DEBUG
         preview(ProcessInfo.processInfo.arguments)
         #endif
@@ -128,6 +132,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
+        let update = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
+        update.target = self
+        update.isEnabled = updater.canCheckForUpdates
+        menu.addItem(update)
         let about = NSMenuItem(title: "About Freewire", action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         menu.addItem(about)
@@ -193,6 +201,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         NSApp.activate()
         settingsWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    @objc private func checkForUpdates() {
+        updater.checkForUpdates()
     }
 
     @objc private func showAbout() {

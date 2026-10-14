@@ -8,12 +8,15 @@ options:
 packages:
   FreewireCore:
     path: FreewireCore
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.10.0
 settings:
   base:
     SWIFT_VERSION: "6.0"
     DEVELOPMENT_TEAM: 4HK3699TX4
-    MARKETING_VERSION: "1.1.0"
-    CURRENT_PROJECT_VERSION: "2"
+    MARKETING_VERSION: "1.2.0"
+    CURRENT_PROJECT_VERSION: "3"
     ENABLE_USER_SCRIPT_SANDBOXING: YES
 targets:
   Freewire:
@@ -23,6 +26,17 @@ targets:
       - path: Freewire
     dependencies:
       - package: FreewireCore
+      - package: Sparkle
+    # Merged with the generated Info.plist: Sparkle's feed (the latest GitHub release's appcast) and public key.
+    # Automatic checks and installs are on from the first launch, without Sparkle's "check automatically?" prompt.
+    info:
+      path: Freewire/Info.plist
+      properties:
+        SUFeedURL: https://github.com/sergioarojasm98/freewire/releases/latest/download/appcast.xml
+        SUPublicEDKey: LQuRVtoAyq6MyNZR4p/ejw+P8UXuOSBYU3ltclWNntM=
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: true
+        SUScheduledCheckInterval: 21600
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.sergioarojasm98.freewire
