@@ -110,6 +110,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         for interface in shown {
             let item = NSMenuItem(title: interface.name, action: nil, keyEquivalent: "")
+            // The interface that carries the traffic (the active one) stands out in bold
+            if interface.device == snapshot.activeInterface?.device {
+                item.attributedTitle = NSAttributedString(string: interface.name, attributes: [
+                    .font: NSFont.boldSystemFont(ofSize: NSFont.menuFont(ofSize: 0).pointSize),
+                ])
+            }
             item.submenu = details(of: interface)
             menu.addItem(item)
         }
